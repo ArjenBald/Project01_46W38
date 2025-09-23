@@ -46,15 +46,11 @@ def power_output(
     -----
     Only the interpolation string is validated (per assignment).
     """
-    # Region 1 & 4: below cut-in OR at/above cut-out → zero power
     if v < v_in or v >= v_out:
         return 0.0
-
-    # Region 3: rated plateau
     if v >= v_rated:
         return float(prated)
 
-    # Region 2: ramp-up region — choose g(v)
     if interpolation == "linear":
         g = (v - v_in) / (v_rated - v_in)
     elif interpolation == "cubic":
@@ -62,10 +58,15 @@ def power_output(
     else:
         raise ValueError('interpolation must be "linear" or "cubic"')
 
-    # Clamp g to [0, 1] (на случай граничных округлений)
     if g < 0.0:
         g = 0.0
     if g > 1.0:
         g = 1.0
-
     return float(g * prated)
+
+
+if __name__ == "__main__":
+    v = 10.0  # m/s
+    p_lin = power_output(v, interpolation="linear")
+    p_cub = power_output(v, interpolation="cubic")
+    print(f"At v = {v:.1f} m/s -> P_linear = {p_lin:.3f} MW, P_cubic = {p_cub:.3f} MW")
